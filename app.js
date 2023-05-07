@@ -3,7 +3,6 @@ const express=require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const session=require("express-session");
-const Schools=require("./models/schools");
 const {MongoClient} = require('mongodb');
 
 const app=express();
@@ -26,7 +25,21 @@ app.get("/",function(req,res){
 app.get("/:dbname/:colname",async function(req,res){
     const dbName=client.db(req.params.dbname);
     const collec=dbName.collection(req.params.colname);
-    const result=await collec.find(req.query).toArray();
+    const allAttr=Object.keys(req.query);
+    var indexQuery={}
+    for(var i=0;i<allAttr.length;i++){
+        indexQuery[allAttr[i]]=1;
+    }
+    collec.createIndexes(indexQuery);
+    const result=await collec.find(req.query).toArray;
+    var dropIndex={};
+    for(var i=0;i<allAttr.length;i++){
+        dropIndex[allAttr[i]]=-1;
+    }
+    console.log(indexQuery);
+    console.log(req.query);
+    console.log(dropIndex);
+    collec.dropIndexes(dropIndex)
     res.send(result);
 
     //query here:
