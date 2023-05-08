@@ -30,18 +30,12 @@ app.get("/:dbname/:colname",async function(req,res){
     for(var i=0;i<allAttr.length;i++){
         indexQuery[allAttr[i]]=1;
     }
-    collec.createIndexes(indexQuery);
-    const result=await collec.find(req.query).toArray;
-    var dropIndex={};
-    for(var i=0;i<allAttr.length;i++){
-        dropIndex[allAttr[i]]=-1;
-    }
     console.log(indexQuery);
     console.log(req.query);
-    console.log(dropIndex);
-    collec.dropIndexes(dropIndex)
+    await collec.createIndex(indexQuery);
+    const result=await collec.find(req.query).toArray();
+    console.log("result",result);
     res.send(result);
-
     //query here:
 });
 
@@ -62,7 +56,16 @@ app.post("/:dbname/:colname",async function(req,res){
 app.delete("/:dbname/:colname",async function(req,res){
     const dbName=client.db(req.params.dbname);
     const collec=dbName.collection(req.params.colname);
-    const result=collec.deleteOne(req.query);
+    const allAttr=Object.keys(req.query);
+    var indexQuery={}
+    for(var i=0;i<allAttr.length;i++){
+        indexQuery[allAttr[i]]=1;
+    }
+    console.log(indexQuery);
+    console.log(req.query);
+    await collec.createIndex(indexQuery);
+    const result=await collec.findOneAndDelete(req.query);
+    console.log(result);
     res.send("Deleted!!");
     //query here:
 });
