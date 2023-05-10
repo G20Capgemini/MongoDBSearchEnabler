@@ -35,6 +35,7 @@ app.get("/:dbname/:colname",async function(req,res){
     await collec.createIndex(indexQuery);
     const result=await collec.find(req.query).toArray();
     console.log("result",result);
+    await collec.dropIndexes();
     res.send(result);
     //query here:
 });
@@ -66,6 +67,7 @@ app.delete("/:dbname/:colname",async function(req,res){
     await collec.createIndex(indexQuery);
     const result=await collec.findOneAndDelete(req.query);
     console.log(result);
+    await collec.dropIndexes();
     res.send("Deleted!!");
     //query here:
 });
